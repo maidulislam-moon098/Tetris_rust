@@ -5,7 +5,7 @@ use std::collections::VecDeque;
 const BOARD_WIDTH: usize = 25;
 const BOARD_HEIGHT: usize = 40;
 const BLOCK_SIZE: f32 = 15.0;
-const BLOCK_SPACING: f32 = 1.5;  // Space between blocks within a piece
+const BLOCK_SPACING: f32 = 1.5; 
 const BOARD_OFFSET_X: f32 = 35.0;
 const BOARD_OFFSET_Y: f32 = 50.0;
 
@@ -68,26 +68,19 @@ impl Game {
             input_repeat_delay: 0.15,
             paused: false,
         };
-        
-        // Fill next pieces queue with a shuffled bag system
         game.refill_piece_bag();
-        
         game.spawn_piece();
         game
     }
-
-    // Implement "bag" system for truly random piece distribution
     fn refill_piece_bag(&mut self) {
         use PieceType::*;
         let mut bag = vec![I, O, T, S, Z, J, L];
         
-        // Shuffle the bag using Fisher-Yates algorithm
         for i in (1..bag.len()).rev() {
-            let j = rand::gen_range(0, i + 1);  // macroquad uses separate low, high params
+            let j = rand::gen_range(0, i + 1); 
             bag.swap(i, j);
         }
         
-        // Add shuffled pieces to queue
         for piece in bag {
             self.next_pieces.push_back(piece);
         }
@@ -96,49 +89,44 @@ impl Game {
     fn get_piece_shapes(piece_type: PieceType) -> [Vec<(i32, i32)>; 4] {
         use PieceType::*;
         match piece_type {
-            // Standard I piece - 4 blocks in a line
             I => [
                 vec![(0,1), (1,1), (2,1), (3,1)],
                 vec![(2,0), (2,1), (2,2), (2,3)],
                 vec![(0,2), (1,2), (2,2), (3,2)],
                 vec![(1,0), (1,1), (1,2), (1,3)],
             ],
-            // Standard O piece - 2x2 square (4 blocks)
             O => [
                 vec![(1,0), (2,0), (1,1), (2,1)],
                 vec![(1,0), (2,0), (1,1), (2,1)],
                 vec![(1,0), (2,0), (1,1), (2,1)],
                 vec![(1,0), (2,0), (1,1), (2,1)],
             ],
-            // Standard T piece - 4 blocks in T shape
             T => [
                 vec![(1,0), (0,1), (1,1), (2,1)],
                 vec![(1,0), (1,1), (2,1), (1,2)],
                 vec![(0,1), (1,1), (2,1), (1,2)],
                 vec![(1,0), (0,1), (1,1), (1,2)],
             ],
-            // Standard S piece - 4 blocks
             S => [
                 vec![(1,0), (2,0), (0,1), (1,1)],
                 vec![(1,0), (1,1), (2,1), (2,2)],
                 vec![(1,1), (2,1), (0,2), (1,2)],
                 vec![(0,0), (0,1), (1,1), (1,2)],
             ],
-            // Standard Z piece - 4 blocks
             Z => [
                 vec![(0,0), (1,0), (1,1), (2,1)],
                 vec![(2,0), (1,1), (2,1), (1,2)],
                 vec![(0,1), (1,1), (1,2), (2,2)],
                 vec![(1,0), (0,1), (1,1), (0,2)],
             ],
-            // Standard J piece - 4 blocks
+
             J => [
                 vec![(0,0), (0,1), (1,1), (2,1)],
                 vec![(1,0), (2,0), (1,1), (1,2)],
                 vec![(0,1), (1,1), (2,1), (2,2)],
                 vec![(1,0), (1,1), (0,2), (1,2)],
             ],
-            // Standard L piece - 4 blocks  
+
             L => [
                 vec![(2,0), (0,1), (1,1), (2,1)],
                 vec![(1,0), (1,1), (1,2), (2,2)],
@@ -149,12 +137,10 @@ impl Game {
     }
 
     fn get_piece_color(_piece_type: PieceType) -> Color {
-        // Classic green for all pieces
         Color::from_rgba(0, 255, 0, 255)
     }
 
     fn spawn_piece(&mut self) {
-        // Refill bag if running low
         if self.next_pieces.len() < 3 {
             self.refill_piece_bag();
         }
@@ -239,8 +225,6 @@ impl Game {
                 self.lock_delay = None;
                 return true;
             }
-            
-            // Wall kicks
             let kicks = vec![(0, 0), (-1, 0), (1, 0), (0, -1), (-1, -1), (1, -1)];
             for (kick_x, kick_y) in kicks {
                 new_piece.x = piece.x + kick_x;
@@ -385,8 +369,7 @@ impl Game {
         }
 
         let current_time = get_time();
-        
-        // Handle lock delay
+    
         if let Some(lock_time) = self.lock_delay {
             if current_time - lock_time >= self.lock_delay_duration {
                 self.lock_piece();
@@ -394,7 +377,6 @@ impl Game {
             }
         }
         
-        // Handle gravity
         self.fall_timer += get_frame_time() as f64;
         if self.fall_timer >= self.get_fall_delay() {
             if !self.move_piece(0, 1) && self.lock_delay.is_none() {
@@ -456,8 +438,6 @@ impl Game {
 
     fn create_display_board(&self) -> [[Cell; BOARD_WIDTH]; BOARD_HEIGHT] {
         let mut display = self.board;
-        
-        // Add ghost piece
         if let Some(ghost) = self.get_ghost_piece() {
             if let Some(current) = &self.current_piece {
                 if ghost.y != current.y {
@@ -476,7 +456,6 @@ impl Game {
             }
         }
         
-        // Add current piece
         if let Some(piece) = &self.current_piece {
             let shape = self.get_piece_shape(piece);
             for (dx, dy) in shape {
@@ -496,24 +475,17 @@ impl Game {
         clear_background(BLACK);
         
         let display = self.create_display_board();
-        
-        // Define green color variations
         let bright_green = Color::from_rgba(0, 255, 0, 255);
         let medium_green = Color::from_rgba(0, 200, 0, 255);
         let dark_green = Color::from_rgba(0, 150, 0, 255);
         let ghost_green = Color::from_rgba(0, 100, 0, 100);
-        
-        // Draw game board
         for y in 0..BOARD_HEIGHT {
             for x in 0..BOARD_WIDTH {
                 let cell_x = BOARD_OFFSET_X + x as f32 * BLOCK_SIZE;
                 let cell_y = BOARD_OFFSET_Y + y as f32 * BLOCK_SIZE;
-                
-                // Draw cell content with spacing between blocks
                 match display[y][x] {
                     Cell::Empty => {},
                     Cell::Filled(_piece_type) => {
-                        // Draw block with spacing
                         let block_size = BLOCK_SIZE - BLOCK_SPACING;
                         let offset = BLOCK_SPACING / 2.0;
                         draw_rectangle(
@@ -523,7 +495,6 @@ impl Game {
                             block_size, 
                             bright_green
                         );
-                        // Add a subtle border for definition
                         draw_rectangle_lines(
                             cell_x + offset, 
                             cell_y + offset, 
@@ -534,7 +505,6 @@ impl Game {
                         );
                     },
                     Cell::Ghost => {
-                        // Draw ghost block with spacing
                         let block_size = BLOCK_SIZE - BLOCK_SPACING;
                         let offset = BLOCK_SPACING / 2.0;
                         draw_rectangle(
@@ -548,41 +518,26 @@ impl Game {
                 }
             }
         }
-        
-        // Draw board border
+    
         let board_width = BOARD_WIDTH as f32 * BLOCK_SIZE;
         let board_height = BOARD_HEIGHT as f32 * BLOCK_SIZE;
         draw_rectangle_lines(BOARD_OFFSET_X - 2.0, BOARD_OFFSET_Y - 2.0, board_width + 4.0, board_height + 4.0, 3.0, bright_green);
-        
-        // Draw UI in green theme
         let ui_x = BOARD_OFFSET_X + board_width + 30.0;
-        
-        // Score
         draw_text(&format!("SCORE"), ui_x, 80.0, 20.0, bright_green);
         draw_text(&format!("{}", self.score), ui_x, 100.0, 20.0, medium_green);
-        
-        // Level
         draw_text(&format!("LEVEL"), ui_x, 140.0, 20.0, bright_green);
         draw_text(&format!("{}", self.level), ui_x, 160.0, 20.0, medium_green);
-        
-        // Lines
         draw_text(&format!("LINES"), ui_x, 200.0, 20.0, bright_green);
         draw_text(&format!("{}", self.lines_cleared), ui_x, 220.0, 20.0, medium_green);
-        
-        // Hold piece
         draw_text(&format!("HOLD"), ui_x, 280.0, 20.0, bright_green);
         if let Some(hold_type) = self.hold_piece {
             draw_text(&format!("{:?}", hold_type), ui_x, 300.0, 16.0, medium_green);
         }
-        
-        // Next pieces
         draw_text(&format!("NEXT"), ui_x, 360.0, 20.0, bright_green);
         for (i, &next_type) in self.next_pieces.iter().take(4).enumerate() {
             let y_pos = 380.0 + i as f32 * 25.0;
             draw_text(&format!("{:?}", next_type), ui_x, y_pos, 16.0, medium_green);
         }
-        
-        // Controls
         draw_text(&format!("CONTROLS"), ui_x, 520.0, 16.0, bright_green);
         draw_text(&format!("←→: Move"), ui_x, 540.0, 12.0, dark_green);
         draw_text(&format!("↓: Soft Drop"), ui_x, 555.0, 12.0, dark_green);
@@ -590,8 +545,6 @@ impl Game {
         draw_text(&format!("Space: Hard Drop"), ui_x, 585.0, 12.0, dark_green);
         draw_text(&format!("C: Hold"), ui_x, 600.0, 12.0, dark_green);
         draw_text(&format!("P: Pause"), ui_x, 615.0, 12.0, dark_green);
-        
-        // Game state messages
         if self.paused {
             draw_text("PAUSED", BOARD_OFFSET_X + 30.0, BOARD_OFFSET_Y + board_height / 2.0, 40.0, bright_green);
             draw_text("Press P to resume", BOARD_OFFSET_X + 10.0, BOARD_OFFSET_Y + board_height / 2.0 + 50.0, 20.0, medium_green);
@@ -601,8 +554,6 @@ impl Game {
             draw_text("GAME OVER", BOARD_OFFSET_X + 20.0, BOARD_OFFSET_Y + board_height / 2.0, 40.0, Color::from_rgba(255, 0, 0, 255));
             draw_text(&format!("Final Score: {}", self.score), BOARD_OFFSET_X + 10.0, BOARD_OFFSET_Y + board_height / 2.0 + 50.0, 20.0, bright_green);
         }
-        
-        // Title
         draw_text("TETRIS", 20.0, 30.0, 30.0, bright_green);
     }
 }
@@ -620,12 +571,9 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    // Seed the random number generator with current time for proper randomization
     let seed = (get_time() * 1000000.0) as u64;
     rand::srand(seed);
-    
     let mut game = Game::new();
-    
     loop {
         game.handle_input();
         game.update();
