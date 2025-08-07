@@ -1,0 +1,9 @@
+[package]
+name = "tetris_rust"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crossterm = "0.27"
+fastrand = "2.0"
+macroquad = "0.4"
