@@ -1,4 +1,4 @@
-# Thank Goodness It's Tetris (TGIT) 🕹️
+# Thank Goodness It's Tetris (TGIT) 
 
 *A classic case of "I should be doing something productive, but let's build Tetris in Rust instead."*
 
